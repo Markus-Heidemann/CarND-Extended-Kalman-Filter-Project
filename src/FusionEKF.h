@@ -32,12 +32,13 @@ public:
   KalmanFilter ekf_;
 
 private:
-  // check whether the tracking toolbox was initialized or not (first measurement)
+  // check whether the tracking toolbox was initialized or not
+  // (first measurement)
   bool is_initialized_;
 
   // previous timestamp
   long long previous_timestamp_;
-  
+
   // process noise
   const float noise_ax_;
   const float noise_ay_;

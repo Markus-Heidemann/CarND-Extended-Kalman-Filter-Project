@@ -1,4 +1,5 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -11,7 +12,8 @@ KalmanFilter::KalmanFilter() {}
 KalmanFilter::~KalmanFilter() {}
 
 void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
-                        MatrixXd &H_in, Eigen::MatrixXd &Hj_in, MatrixXd &R_in, MatrixXd &Q_in)
+                        MatrixXd &H_in, Eigen::MatrixXd &Hj_in, MatrixXd &R_in,
+                        MatrixXd &Q_in)
 {
   x_ = x_in;
   P_ = P_in;
@@ -30,21 +32,18 @@ void KalmanFilter::Predict()
 
 void KalmanFilter::Update(const VectorXd &z)
 {
-  VectorXd y(4);
-  y = z - H_ * x_;
-  MatrixXd S(2, 2);
-  S = H_ * P_ * H_.transpose() + R_;
-  MatrixXd K(4, 2);
-  K = P_ * H_.transpose() * S.inverse();
+  VectorXd y = z - H_ * x_;
+  MatrixXd S = H_ * P_ * H_.transpose() + R_;
+  MatrixXd K = P_ * H_.transpose() * S.inverse();
 
   x_ += K * y;
-  P_ = (MatrixXd::Identity(4, 4) - K * H_) * P_;
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+  P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z)
 {
-  VectorXd y(3);
-  y = z - h(x_);
+  VectorXd y = z - h(x_);
 
   // make sure phi is in a range of -pi to pi
   float pi = std::acos(-1);
@@ -57,13 +56,12 @@ void KalmanFilter::UpdateEKF(const VectorXd &z)
     y(1) -= 2 * pi;
   }
 
-  MatrixXd S(2, 2);
-  S = Hj_ * P_ * Hj_.transpose() + R_;
-  MatrixXd K(4, 2);
-  K = P_ * Hj_.transpose() * S.inverse();
+  MatrixXd S = Hj_ * P_ * Hj_.transpose() + R_;
+  MatrixXd K = P_ * Hj_.transpose() * S.inverse();
 
   x_ += K * y;
-  P_ = (MatrixXd::Identity(4, 4) - K * Hj_) * P_;
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+  P_ = (I - K * Hj_) * P_;
 }
 
 VectorXd KalmanFilter::h(const VectorXd &x)
