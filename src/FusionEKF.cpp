@@ -36,19 +36,19 @@ FusionEKF::FusionEKF() : noise_ax_(9.0), noise_ay_(9.0) {
     * Finish initializing the FusionEKF.
     * Set the process and measurement noises
   */
-  
+
   H_laser_ << 1, 0, 0, 0,
-  			  0, 1, 0, 0;
-  
+          0, 1, 0, 0;
+
   Qv_ = MatrixXd(2,2);
   Qv_ << noise_ax_, 0,
-  		 0, noise_ay_;
-  
+       0, noise_ay_;
+
   VectorXd x(4);
   MatrixXd P(4,4);
   MatrixXd F(4,4);
   MatrixXd Q(4,4);
-  
+
   ekf_ = KalmanFilter();
   ekf_.Init(x, P, F, H_laser_, Hj_, R_laser_, Q);
 
@@ -90,7 +90,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float d = measurement_pack.raw_measurements_(0);
       float phi = measurement_pack.raw_measurements_(1);
       float d_dot = measurement_pack.raw_measurements_(2);
-      
+
       VectorXd cart_meas(4);
       cart_meas << d*sin(phi), d*cos(phi), d_dot*sin(phi), d_dot*cos(phi);
       ekf_.x_ = cart_meas;
@@ -121,20 +121,20 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Update the process noise covariance matrix.
      * Use noise_ax = 9 and noise_ay = 9 for your Q matrix.
    */
-  
+
   int dt = measurement_pack.timestamp_ - previous_timestamp_;
-  
+
   ekf_.F_ << 1, 0, dt, 0,
-  			 0, 1, 0, dt,
-  			 0, 0, 1, 0,
-  			 0, 0, 0, 1;
-  
+         0, 1, 0, dt,
+         0, 0, 1, 0,
+         0, 0, 0, 1;
+
   MatrixXd G(4,2);
   G << 0.5*dt*dt, 0,
-  	  0, 0.5*dt*dt,
-  	  dt, 0,
-  	  0, dt;
-  
+      0, 0.5*dt*dt,
+      dt, 0,
+      0, dt;
+
   ekf_.Q_ = G*Qv_*G.transpose();
 
   ekf_.Predict();
