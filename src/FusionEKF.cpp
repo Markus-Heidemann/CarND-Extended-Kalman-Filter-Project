@@ -56,10 +56,6 @@ FusionEKF::~FusionEKF() {}
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack)
 {
-
-  std::cout << "FusionEKF::ProcessMeasurement called"
-            << "\n";
-
   /*****************************************************************************
    *  Initialization
    ****************************************************************************/

@@ -73,6 +73,10 @@ VectorXd KalmanFilter::h(const VectorXd &x)
 
   float rho = sqrt(px * px + py * py);
   float phi = atan2(py, px);
+  if (rho <= 0.0001)
+  {
+    std::cout << "[ERROR] Dividing by zero in KalmanFilter::h\n";
+  }
   float rho_dot = (px * vx + py * vy) / rho;
 
   VectorXd res(3);

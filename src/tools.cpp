@@ -41,6 +41,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x_state)
 
   if (c1 <= 0.0001)
   {
+    std::cout << "[ERROR] Dividing by zero in CalculateJacobian\n";
     return Hj;
   }
 
